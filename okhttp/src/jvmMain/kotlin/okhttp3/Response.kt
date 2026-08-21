@@ -33,6 +33,7 @@ import okhttp3.internal.commonIsSuccessful
 import okhttp3.internal.commonMessage
 import okhttp3.internal.commonNetworkResponse
 import okhttp3.internal.commonNewBuilder
+import okhttp3.internal.commonPeekBody
 import okhttp3.internal.commonPriorResponse
 import okhttp3.internal.commonProtocol
 import okhttp3.internal.commonRemoveHeader
