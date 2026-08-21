@@ -33,13 +33,22 @@ import okio.Okio;
 
 public final class RequestBodyCompression {
   /**
-   * The Google API KEY for OkHttp recipes. If you're using Google APIs for anything other than
-   * running these examples, please request your own client ID!
+   * The Google API KEY for OkHttp recipes. Set the GOOGLE_API_KEY environment variable before
+   * running these examples. If you're using Google APIs for anything other than running these
+   * examples, please request your own client ID!
    *
    * https://console.developers.google.com/project
    */
-  public static final String GOOGLE_API_KEY = "AIzaSyAx2WZYe0My0i-uGurpvraYJxO7XNbwiGs";
+  public static final String GOOGLE_API_KEY = requireEnvironmentVariable("GOOGLE_API_KEY");
   public static final MediaType MEDIA_TYPE_JSON = MediaType.get("application/json");
+
+  private static String requireEnvironmentVariable(String name) {
+    String value = System.getenv(name);
+    if (value == null || value.isEmpty()) {
+      throw new IllegalStateException("Environment variable " + name + " must be set");
+    }
+    return value;
+  }
 
   private final OkHttpClient client = new OkHttpClient.Builder()
       .addInterceptor(new GzipRequestInterceptor())

@@ -39,9 +39,11 @@ public class SampleServer extends Dispatcher {
   @Override public MockResponse dispatch(RecordedRequest request) {
     String path = request.getPath();
     try {
-      if (!path.startsWith("/") || path.contains("..")) throw new FileNotFoundException();
+      if (!path.startsWith("/")) throw new FileNotFoundException();
 
-      File file = new File(root + path);
+      File canonicalRoot = new File(root).getCanonicalFile();
+      File file = new File(root, path).getCanonicalFile();
+      if (!file.toPath().startsWith(canonicalRoot.toPath())) throw new FileNotFoundException();
       return file.isDirectory()
           ? directoryToResponse(path, file)
           : fileToResponse(path, file);
@@ -58,15 +60,19 @@ public class SampleServer extends Dispatcher {
     }
   }
 
-  private MockResponse directoryToResponse(String basePath, File directory) {
+  private MockResponse directoryToResponse(String basePath, File directory)
+      throws FileNotFoundException {
     if (!basePath.endsWith("/")) basePath += "/";
 
     StringBuilder response = new StringBuilder();
-    response.append(String.format("<html><head><title>%s</title></head><body>", basePath));
-    response.append(String.format("<h1>%s</h1>", basePath));
-    for (String file : directory.list()) {
+    response.append(String.format("<html><head><title>%s</title></head><body>",
+        escapeHtml(basePath)));
+    response.append(String.format("<h1>%s</h1>", escapeHtml(basePath)));
+    String[] files = directory.list();
+    if (files == null) throw new FileNotFoundException(directory.toString());
+    for (String file : files) {
       response.append(String.format("<div class='file'><a href='%s'>%s</a></div>",
-          basePath + file, file));
+          escapeHtml(basePath + file), escapeHtml(file)));
     }
     response.append("</body></html>");
 
@@ -74,6 +80,15 @@ public class SampleServer extends Dispatcher {
         .setStatus("HTTP/1.1 200")
         .addHeader("content-type: text/html; charset=utf-8")
         .setBody(response.toString());
+  }
+
+  private static String escapeHtml(String value) {
+    return value
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#39;");
   }
 
   private MockResponse fileToResponse(String path, File file) throws IOException {
