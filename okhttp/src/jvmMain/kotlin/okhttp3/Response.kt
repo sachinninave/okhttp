@@ -19,7 +19,6 @@ import java.io.Closeable
 import java.io.IOException
 import java.net.HttpURLConnection.HTTP_PROXY_AUTH
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
-import okhttp3.ResponseBody.Companion.asResponseBody
 import okhttp3.internal.commonAddHeader
 import okhttp3.internal.commonBody
 import okhttp3.internal.commonCacheControl
@@ -42,7 +41,6 @@ import okhttp3.internal.commonToString
 import okhttp3.internal.commonTrailers
 import okhttp3.internal.connection.Exchange
 import okhttp3.internal.http.parseChallenges
-import okio.Buffer
 
 actual class Response internal constructor(
   @get:JvmName("request") actual val request: Request,
@@ -148,13 +146,7 @@ actual class Response internal constructor(
   actual fun trailers(): Headers = trailersFn()
 
   @Throws(IOException::class)
-  actual fun peekBody(byteCount: Long): ResponseBody {
-    val peeked = body.source().peek()
-    val buffer = Buffer()
-    peeked.request(byteCount)
-    buffer.write(peeked, minOf(byteCount, peeked.buffer.size))
-    return buffer.asResponseBody(body.contentType(), buffer.size)
-  }
+  actual fun peekBody(byteCount: Long): ResponseBody = commonPeekBody(byteCount)
 
   @JvmName("-deprecated_body")
   @Deprecated(

@@ -15,7 +15,6 @@
  */
 package okhttp3.internal.platform
 
-import java.security.KeyStore
 import java.security.Provider
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
@@ -44,13 +43,8 @@ class ConscryptPlatform private constructor() : Platform() {
       SSLContext.getInstance("TLS", provider)
 
   override fun platformTrustManager(): X509TrustManager {
-    val trustManagers = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply {
-      init(null as KeyStore?)
-    }.trustManagers!!
-    check(trustManagers.size == 1 && trustManagers[0] is X509TrustManager) {
-      "Unexpected default trust managers: ${trustManagers.contentToString()}"
-    }
-    val x509TrustManager = trustManagers[0] as X509TrustManager
+    val x509TrustManager = TrustManagerFactory.getInstance(
+        TrustManagerFactory.getDefaultAlgorithm()).platformTrustManager()
     // Disabled because OkHttp will run anyway
     Conscrypt.setHostnameVerifier(x509TrustManager, DisabledHostnameVerifier)
     return x509TrustManager
