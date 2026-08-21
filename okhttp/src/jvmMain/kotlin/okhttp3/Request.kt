@@ -111,14 +111,7 @@ actual class Request internal actual constructor(builder: Builder) {
   actual fun newBuilder(): Builder = Builder(this)
 
   @get:JvmName("cacheControl") actual val cacheControl: CacheControl
-    get() {
-      var result = lazyCacheControl
-      if (result == null) {
-        result = CacheControl.parse(headers)
-        lazyCacheControl = result
-      }
-      return result
-    }
+    get() = commonCacheControl()
 
   @JvmName("-deprecated_url")
   @Deprecated(

@@ -21,7 +21,6 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.security.GeneralSecurityException
-import java.security.KeyStore
 import java.security.Security
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -81,12 +80,7 @@ open class Platform {
   open fun platformTrustManager(): X509TrustManager {
     val factory = TrustManagerFactory.getInstance(
         TrustManagerFactory.getDefaultAlgorithm())
-    factory.init(null as KeyStore?)
-    val trustManagers = factory.trustManagers!!
-    check(trustManagers.size == 1 && trustManagers[0] is X509TrustManager) {
-      "Unexpected default trust managers: ${trustManagers.contentToString()}"
-    }
-    return trustManagers[0] as X509TrustManager
+    return factory.platformTrustManager()
   }
 
   open fun trustManager(sslSocketFactory: SSLSocketFactory): X509TrustManager? {

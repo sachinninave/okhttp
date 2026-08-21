@@ -15,7 +15,6 @@
  */
 package okhttp3.internal.platform
 
-import java.security.KeyStore
 import java.security.Provider
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
@@ -42,12 +41,7 @@ class OpenJSSEPlatform private constructor() : Platform() {
   override fun platformTrustManager(): X509TrustManager {
     val factory = TrustManagerFactory.getInstance(
         TrustManagerFactory.getDefaultAlgorithm(), provider)
-    factory.init(null as KeyStore?)
-    val trustManagers = factory.trustManagers!!
-    check(trustManagers.size == 1 && trustManagers[0] is X509TrustManager) {
-      "Unexpected default trust managers: ${trustManagers.contentToString()}"
-    }
-    return trustManagers[0] as X509TrustManager
+    return factory.platformTrustManager()
   }
 
   override fun trustManager(sslSocketFactory: SSLSocketFactory): X509TrustManager =

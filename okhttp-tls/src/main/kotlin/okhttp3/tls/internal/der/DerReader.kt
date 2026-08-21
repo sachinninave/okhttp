@@ -49,16 +49,16 @@ internal class DerReader(source: Source) {
   private var limit = -1L
 
   /** Type hints scoped to the call stack, manipulated with [withTypeHint]. */
-  private val typeHintStack = mutableListOf<Any?>()
+  private val typeHintStack = TypeHintStack()
 
   /**
    * The type hint for the current object. Used to pick adapters based on other fields, such as
    * in extensions which have different types depending on their extension ID.
    */
   var typeHint: Any?
-    get() = typeHintStack.lastOrNull()
+    get() = typeHintStack.typeHint
     set(value) {
-      typeHintStack[typeHintStack.size - 1] = value
+      typeHintStack.typeHint = value
     }
 
   /** Names leading to the current location in the ASN.1 document. */
@@ -197,12 +197,7 @@ internal class DerReader(source: Source) {
    * longer usable by the current type's members.
    */
   fun <T> withTypeHint(block: () -> T): T {
-    typeHintStack.add(null)
-    try {
-      return block()
-    } finally {
-      typeHintStack.removeAt(typeHintStack.size - 1)
-    }
+    return typeHintStack.withTypeHint(block)
   }
 
   fun readBoolean(): Boolean {
