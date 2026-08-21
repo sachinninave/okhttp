@@ -114,6 +114,56 @@ class MainTest {
     )
   }
 
+  @Test
+  fun contentTypeHeaderIsNotSentAsARegularHeader() {
+    val request = fromArgs(
+      "-d", "foo", "-H", "Content-Type: application/json",
+      "http://example.com"
+    ).createRequest()
+    assertThat(request.header("Content-Type")).isNull()
+    assertThat(request.body!!.contentType().toString())
+      .isEqualTo("application/json; charset=utf-8")
+  }
+
+  @Test
+  fun malformedContentTypeHeaderYieldsNoContentType() {
+    val request = fromArgs(
+      "-d", "foo", "-H", "Content-Type: ~~~",
+      "http://example.com"
+    ).createRequest()
+    assertThat(request.body!!.contentType()).isNull()
+  }
+
+  @Test
+  fun multipleHeaders() {
+    val request = fromArgs(
+      "-H", "Accept: text/plain", "-H", "Accept-Language: en-US",
+      "http://example.com"
+    ).createRequest()
+    assertThat(request.header("Accept")).isEqualTo("text/plain")
+    assertThat(request.header("Accept-Language")).isEqualTo("en-US")
+  }
+
+  @Test
+  fun headerValueIsTrimmed() {
+    val request = fromArgs("-H", "Accept:   text/plain", "http://example.com").createRequest()
+    assertThat(request.header("Accept")).isEqualTo("text/plain")
+  }
+
+  /** Without `-d` the request method is left at its default. */
+  @Test
+  fun methodWithoutDataIsIgnored() {
+    val request = fromArgs("-X", "DELETE", "http://example.com").createRequest()
+    assertThat(request.method).isEqualTo("GET")
+    assertThat(request.body).isNull()
+  }
+
+  @Test
+  fun urlIsResolvedFromArgument() {
+    val request = fromArgs("http://example.com/a/b?c=d").createRequest()
+    assertThat(request.url.toString()).isEqualTo("http://example.com/a/b?c=d")
+  }
+
   companion object {
     fun fromArgs(vararg args: String): Main {
       return Main().apply {
