@@ -280,6 +280,7 @@ class ConnectPlan(
       if (npe.message == NPE_THROW_WITH_NULL) {
         throw IOException(npe)
       }
+      throw npe
     }
   }
 

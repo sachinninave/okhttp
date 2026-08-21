@@ -440,7 +440,9 @@ class Http1ExchangeCodec(
               " but was \"$bytesRemainingInChunk$extensions\"")
         }
       } catch (e: NumberFormatException) {
-        throw ProtocolException(e.message)
+        throw ProtocolException(e.message).apply {
+          initCause(e)
+        }
       }
 
       if (bytesRemainingInChunk == 0L) {

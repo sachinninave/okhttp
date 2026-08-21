@@ -23,6 +23,7 @@ import kotlin.text.Charsets.ISO_8859_1
 import okhttp3.internal.commonEquals
 import okhttp3.internal.commonHashCode
 import okhttp3.internal.commonToString
+import okhttp3.internal.platform.Platform
 
 actual class Challenge actual constructor(
   @get:JvmName("scheme") actual val scheme: String,
@@ -41,7 +42,12 @@ actual class Challenge actual constructor(
       if (charset != null) {
         try {
           return Charset.forName(charset)
-        } catch (ignore: Exception) {
+        } catch (e: Exception) {
+          Platform.get().log(
+            "Unsupported charset \"$charset\" in challenge, using $ISO_8859_1",
+            Platform.WARN,
+            e
+          )
         }
       }
       return ISO_8859_1

@@ -634,7 +634,7 @@ class Cache internal constructor(
         }
         return result
       } catch (e: CertificateException) {
-        throw IOException(e.message)
+        throw IOException(e.message, e)
       }
     }
 
@@ -648,7 +648,7 @@ class Cache internal constructor(
           sink.writeUtf8(line).writeByte('\n'.code)
         }
       } catch (e: CertificateEncodingException) {
-        throw IOException(e.message)
+        throw IOException(e.message, e)
       }
     }
 
@@ -728,7 +728,7 @@ class Cache internal constructor(
         }
         return result.toInt()
       } catch (e: NumberFormatException) {
-        throw IOException(e.message)
+        throw IOException(e.message, e)
       }
     }
 
