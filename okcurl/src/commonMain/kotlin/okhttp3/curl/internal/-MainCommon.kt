@@ -15,6 +15,7 @@
  */
 package okhttp3.curl.internal
 
+import com.github.ajalt.clikt.core.CliktError
 import java.io.IOException
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -94,7 +95,7 @@ fun Main.commonRun() {
 
     response.body.close()
   } catch (e: IOException) {
-    e.printStackTrace()
+    throw CliktError("Request failed: $e", e)
   } finally {
     close()
   }

@@ -130,6 +130,7 @@ class DnsOverHttps internal constructor(
     try {
       latch.await()
     } catch (e: InterruptedException) {
+      Thread.currentThread().interrupt() // Retain interrupted status.
       failures.add(e)
     }
   }
