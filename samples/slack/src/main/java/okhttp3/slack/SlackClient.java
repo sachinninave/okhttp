@@ -72,8 +72,12 @@ public final class SlackClient {
   }
 
   public static void main(String... args) throws Exception {
-    String clientId = "0000000000.00000000000";
-    String clientSecret = "00000000000000000000000000000000";
+    String clientId = System.getenv("SLACK_CLIENT_ID");
+    String clientSecret = System.getenv("SLACK_CLIENT_SECRET");
+    if (clientId == null || clientId.isEmpty() || clientSecret == null || clientSecret.isEmpty()) {
+      System.out.println("Set SLACK_CLIENT_ID and SLACK_CLIENT_SECRET environment variables");
+      return;
+    }
     int port = 53203;
     SlackApi slackApi = new SlackApi(clientId, clientSecret, port);
 
